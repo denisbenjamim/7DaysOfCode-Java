@@ -4,8 +4,11 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -27,93 +30,81 @@ public final class Main {
         final String url = "https://imdb-api.com/en/API/Top250Movies/k_388n6dm6";
         final String json = response(url);
 
-        final List<List<String>> filmes = parseToFilmesList(json);
+        final List<Movie> movies = parseToFilmesList(json);
 
-        imprimirFilmePeloIndice(filmes, 249);
-      
+        imprimirFilmePeloRank(movies, 1);
     }
 
-    public static void imprimirFilmePeloIndice(List<List<String>> filmes, int indiceSelecionado){
-        if(filmes == null || filmes.isEmpty())
+    public static void imprimirFilmePeloRank(List<Movie> movies, int rank){
+        if(movies == null || movies.isEmpty())
             throw new RuntimeException("Lista nao poder ser vazia");
         
-        final int totalFilmes = filmes.get(0).size();
+        final int totMovies = movies.size();
        
-        if(indiceSelecionado > totalFilmes - 1 || indiceSelecionado < 0)
+        if(rank > totMovies - 1 || rank < 0)
             throw new IllegalArgumentException("O indice selecionar nao existe");
         
-        for(List<String> campo: filmes){
-            System.out.println(campo.get(indiceSelecionado));
-        }
-
-        System.out.println();
+        System.out.println(movies.stream().collect(Collectors.toMap(Movie::getRank, Function.identity())).get(rank));
     }
-    
-    public static List<List<String>> parseToFilmesList(String json) {
-        List<String> ids = new ArrayList<>();
-        List<String> ranks = new ArrayList<>();
-        List<String> titles = new ArrayList<>();
-        List<String> fullTitles = new ArrayList<>();
-        List<String> years = new ArrayList<>();
-        List<String> images = new ArrayList<>();
-        List<String> crews = new ArrayList<>();
-        List<String> imDbRatings = new ArrayList<>();
-        List<String> imDbRatingCounts = new ArrayList<>();
-        List<List<String>> filmes = Arrays.asList(ids, ranks, titles, fullTitles, years, images,crews, imDbRatings, imDbRatingCounts);
 
+    public static List<Movie> parseToFilmesList(String json) {
+        
         Pattern pattern = Pattern.compile("(\\\"\\w+\\\"):(\\\".*?\\\")");
         Matcher matcher = pattern.matcher(json);
-
+        
         String label = null;
         String value = null;
-
+        
+        Movie movie = null;
+        List<Movie> movies = new ArrayList<>(matcher.groupCount());
         while (matcher.find()) {
             label = getTextoEntreAspasDuplas(matcher.group(1));
             value = getTextoEntreAspasDuplas(matcher.group(2));
 
             switch (label) {
                 case "id":
-                    ids.add(value);
+                    movie = new Movie().id(value);
                     break;
 
                 case "rank":
-                    ranks.add(value);
+                    movie.rank(Integer.valueOf(value));
                     break;
 
                 case "title":
-                    titles.add(value);
+                    movie.title(value);
                     break;
 
                 case "fullTitle":
-                    fullTitles.add(value);
+                    movie.fullTitle(value);
                     break;
 
                 case "year":
-                    years.add(value);
+                    movie.year(Integer.valueOf(value));
                     break;
 
                 case "image":
-                    images.add(value);
+                    movie.image(value);
                     break;
 
                 case "crew":
-                    crews.add(value);
+                    movie.crew(value);
                     break;
 
                 case "imDbRating":
-                    imDbRatings.add(value);
+                    movie.imDbRating(Double.valueOf(value));
                     break;
 
                 case "imDbRatingCount":
-                    imDbRatingCounts.add(value);
+                    movie.imDbRatingCount(Integer.valueOf(value));
+                    movies.add(movie);
                     break;
 
                 default:
-                    System.out.println("Campo nao mapeado -> " + label + " = " + value);
+                    System.out.println("Campo nao mapeado -> " + label + " = " + value+"\n\n");
                 break;
             }
         }
-        return filmes;
+        return movies;
     }
 
     public static String getTextoEntreAspasDuplas(String string) {
