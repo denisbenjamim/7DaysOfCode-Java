@@ -75,16 +75,18 @@ public class HTMLElement {
         return ELEMENT.toString();
     }
 
-    public void append(HTMLElement htmlElement){
+    public HTMLElement append(HTMLElement htmlElement){
         this.chields.add(htmlElement);
+        return this;
     }
 
     public HTMLElement getChield(int index){
         return this.chields.get(index);
     }
 
-    public void addDataset(String nomePropriedade, Object valorPropriedade){
+    public HTMLElement addDataset(String nomePropriedade, Object valorPropriedade){
         this.dataset.put(nomePropriedade, valorPropriedade);
+        return this;
     }
     
     public void addClass(String nomeClasse){

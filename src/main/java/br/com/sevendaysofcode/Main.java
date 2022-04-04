@@ -1,41 +1,22 @@
 package br.com.sevendaysofcode;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonParser;
-
-import org.apache.http.HttpStatus;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.util.EntityUtils;
-
 import br.com.sevendaysofcode.html.HTMLGenerator;
+import br.com.sevendaysofcode.imdb.ImdbApiClient;
+import br.com.sevendaysofcode.imdb.ImdbMovieJsonParser;
 
-/**
- * Hello world!
- */
 public final class Main {
-    public static void main(String[] args) throws FileNotFoundException, Exception {
-        final String url = "https://imdb-api.com/en/API/Top250Movies/k_388n6dm6";
-        final String json = response(url);
+    public static void main(String[] args) {
+        final String JSON = new ImdbApiClient("k_388n6dm6").getBody();
+        final List<Movie> movies = new ImdbMovieJsonParser(JSON).parse();
 
-        final List<Movie> movies = parseToFilmesList(json);
-
-        try(HTMLGenerator generator = new HTMLGenerator(new PrintWriter("index.html"))){
+        try(HTMLGenerator generator = new HTMLGenerator("index.html")){
            generator.generate(movies); 
+        } catch(Exception e){
+            e.printStackTrace();
         }
     }
 
@@ -49,99 +30,5 @@ public final class Main {
             throw new IllegalArgumentException("O indice selecionar nao existe");
         
         System.out.println(movies.stream().collect(Collectors.toMap(Movie::getRank, Function.identity())).get(rank));
-    }
-
-    public static List<Movie> parseToFilmesList(String json) {
-        
-        Pattern pattern = Pattern.compile("(\\\"\\w+\\\"):(\\\".*?\\\")");
-        Matcher matcher = pattern.matcher(json);
-        
-        String label = null;
-        String value = null;
-        
-        Movie movie = null;
-        List<Movie> movies = new ArrayList<>(matcher.groupCount());
-        while (matcher.find()) {
-            label = getTextoEntreAspasDuplas(matcher.group(1));
-            value = getTextoEntreAspasDuplas(matcher.group(2));
-
-            switch (label) {
-                case "id":
-                    movie = new Movie().id(value);
-                    break;
-
-                case "rank":
-                    movie.rank(Integer.valueOf(value));
-                    break;
-
-                case "title":
-                    movie.title(value);
-                    break;
-
-                case "fullTitle":
-                    movie.fullTitle(value);
-                    break;
-
-                case "year":
-                    movie.year(Integer.valueOf(value));
-                    break;
-
-                case "image":
-                    movie.image(value);
-                    break;
-
-                case "crew":
-                    movie.crew(value);
-                    break;
-
-                case "imDbRating":
-                    movie.imDbRating(Double.valueOf(value));
-                    break;
-
-                case "imDbRatingCount":
-                    movie.imDbRatingCount(Integer.valueOf(value));
-                    movies.add(movie);
-                    break;
-
-                default:
-                    System.out.println("Campo nao mapeado -> " + label + " = " + value+"\n\n");
-                break;
-            }
-        }
-        return movies;
-    }
-
-    public static String getTextoEntreAspasDuplas(String string) {
-        if (string == null)
-            return string;
-
-        Pattern patternEntreAspasDuplas = Pattern.compile("^(\")(.*)(\")$");
-        Matcher matcher = patternEntreAspasDuplas.matcher(string);
-
-        if (matcher.matches()) {
-            return matcher.group(2);
-        }
-        return string;
-    }
-
-    public static String response(String url) {
-        HttpGet get = new HttpGet("https://imdb-api.com/en/API/Top250Movies/k_388n6dm6");
-        try (
-                CloseableHttpClient httpClient = HttpClients.createDefault();
-                CloseableHttpResponse response = httpClient.execute(get)) {
-            if (HttpStatus.SC_OK == response.getStatusLine().getStatusCode()) {
-                return EntityUtils.toString(response.getEntity());
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    public static void imprimeJsonFormatado(String json) {
-        Gson gson = new GsonBuilder().setPrettyPrinting().create();
-        JsonElement jsonElement = JsonParser.parseString(json);
-
-        System.out.println(gson.toJson(jsonElement));
     }
 }

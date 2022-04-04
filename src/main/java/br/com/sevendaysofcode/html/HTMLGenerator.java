@@ -1,6 +1,8 @@
 package br.com.sevendaysofcode.html;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.io.Writer;
 import java.text.MessageFormat;
 import java.util.List;
@@ -11,8 +13,8 @@ public class HTMLGenerator implements AutoCloseable {
     
     final Writer writer;
 
-    public HTMLGenerator(Writer writer) {
-        this.writer = writer;
+    public HTMLGenerator(String nomeArquivo) throws FileNotFoundException {
+        this.writer = new PrintWriter(nomeArquivo);
     }
 
     private HTMLElement createCard(Movie movie){
@@ -23,20 +25,16 @@ public class HTMLGenerator implements AutoCloseable {
         HTMLElement imgCardImg = new HTMLElement("img", "card-img");
         HTMLElement pCardText = new HTMLElement("p", "card-text mt-2");
 
-        divCard.addDataset("style", "max-width: 18rem");
         h4CardHeader.textContent = movie.getTitle();
-        
-        imgCardImg.addDataset("src", movie.getImage());
-        imgCardImg.addDataset("alt", movie.getFullTitle());
-        
         pCardText.textContent = MessageFormat.format("Nota: {0} - Ano: {1}", movie.getImDbRating(), movie.getYear());
+        
+        divCard.addDataset("style", "max-width: 18rem");
+        imgCardImg.addDataset("src", movie.getImage()).addDataset("alt", movie.getFullTitle());
 
         divCardBody.append(imgCardImg);
         divCardFooter.append(pCardText);
         
-        divCard.append(h4CardHeader);
-        divCard.append(divCardBody);
-        divCard.append(divCardFooter);
+        divCard.append(h4CardHeader).append(divCardBody).append(divCardFooter);
         
         return divCard;
     }
