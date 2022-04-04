@@ -1,13 +1,13 @@
 package br.com.sevendaysofcode;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 import com.google.gson.Gson;
@@ -22,17 +22,21 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 
+import br.com.sevendaysofcode.html.HTMLGenerator;
+
 /**
  * Hello world!
  */
 public final class Main {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws FileNotFoundException, Exception {
         final String url = "https://imdb-api.com/en/API/Top250Movies/k_388n6dm6";
         final String json = response(url);
 
         final List<Movie> movies = parseToFilmesList(json);
 
-        imprimirFilmePeloRank(movies, 1);
+        try(HTMLGenerator generator = new HTMLGenerator(new PrintWriter("index.html"))){
+           generator.generate(movies); 
+        }
     }
 
     public static void imprimirFilmePeloRank(List<Movie> movies, int rank){
