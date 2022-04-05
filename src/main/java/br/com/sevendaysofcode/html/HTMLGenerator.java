@@ -7,7 +7,7 @@ import java.io.Writer;
 import java.text.MessageFormat;
 import java.util.List;
 
-import br.com.sevendaysofcode.Movie;
+import br.com.sevendaysofcode.Content;
 
 public class HTMLGenerator implements AutoCloseable {
     
@@ -17,21 +17,23 @@ public class HTMLGenerator implements AutoCloseable {
         this.writer = new PrintWriter(nomeArquivo);
     }
 
-    private HTMLElement createCard(Movie movie){
+    private HTMLElement createCard(Content content){
         HTMLElement divCard = new HTMLElement("div", "card text-white bg-dark mb-3 mr-2");
         HTMLElement h4CardHeader = new HTMLElement("h4", "card-header");
         HTMLElement divCardBody = new HTMLElement("div", "card-body");
         HTMLElement divCardFooter = new HTMLElement("div", "card-footer");
         HTMLElement imgCardImg = new HTMLElement("img", "card-img");
         HTMLElement pCardText = new HTMLElement("p", "card-text mt-2");
+        HTMLElement pCardType = new HTMLElement("p", "card-text");
 
-        h4CardHeader.textContent = movie.getTitle();
-        pCardText.textContent = MessageFormat.format("Nota: {0} - Ano: {1}", movie.getImDbRating(), movie.getYear());
+        h4CardHeader.textContent = content.title();
+        pCardText.textContent = MessageFormat.format("classificacao: {0} - Ano: {1}", content.rating(), content.year());
+        pCardType.textContent = MessageFormat.format("Tipo: {0}", content.type());
         
         divCard.addDataset("style", "max-width: 18rem");
-        imgCardImg.addDataset("src", movie.getImage()).addDataset("alt", movie.getFullTitle());
+        imgCardImg.addDataset("src", content.urlImage()).addDataset("alt", "imagem de capa");
 
-        divCardBody.append(imgCardImg);
+        divCardBody.append(pCardType).append(imgCardImg);
         divCardFooter.append(pCardText);
         
         divCard.append(h4CardHeader).append(divCardBody).append(divCardFooter);
@@ -79,13 +81,13 @@ public class HTMLGenerator implements AutoCloseable {
         return html;
     }
 
-    public void generate(List<Movie> movies){
+    public void generate(List<Content> contents){
         HTMLElement page = createPage();
-        HTMLElement body = page.getChield(1);
+        HTMLElement body = page.getChild(1);
         HTMLElement divRow = new HTMLElement("div", "row");
         
-        movies.forEach(movie -> {
-            divRow.append(createCard(movie));
+        contents.forEach(content -> {
+            divRow.append(createCard(content));
         });
 
         body.append(divRow);

@@ -10,7 +10,7 @@ import java.util.Map;
 public class HTMLElement {
     final String TEMPLATE_CHAVE_VALOR = " {0}=\"{1}\"";
     List<String> classList = new ArrayList<>();
-    List<HTMLElement> chields = new ArrayList<>(); 
+    List<HTMLElement> childs = new ArrayList<>(); 
     
     Map<String, Object> dataset = new LinkedHashMap<>();
     Map<String, Object> style = new LinkedHashMap<>();
@@ -64,8 +64,8 @@ public class HTMLElement {
         }
         
         //Adiciona os elementos filhos na ordem que foram inseridos
-        chields.forEach(chield -> {
-            ELEMENT.append("\n").append(chield.generated());
+        childs.forEach(child -> {
+            ELEMENT.append("\n").append(child.generated());
         });
 
         if(fechar){
@@ -76,12 +76,12 @@ public class HTMLElement {
     }
 
     public HTMLElement append(HTMLElement htmlElement){
-        this.chields.add(htmlElement);
+        this.childs.add(htmlElement);
         return this;
     }
 
-    public HTMLElement getChield(int index){
-        return this.chields.get(index);
+    public HTMLElement getChild(int index){
+        return this.childs.get(index);
     }
 
     public HTMLElement addDataset(String nomePropriedade, Object valorPropriedade){

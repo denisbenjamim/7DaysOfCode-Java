@@ -5,17 +5,19 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import br.com.sevendaysofcode.Content;
+import br.com.sevendaysofcode.JsonParser;
 import br.com.sevendaysofcode.Movie;
 
-public class ImdbMovieJsonParser {
+public class ImdbMovieJsonParser implements JsonParser {
     final String JSON;
     
     public ImdbMovieJsonParser(String jSON) {
         JSON = jSON;
     }
 
-    public List<Movie> parse() {
-        
+    @Override
+    public List<Content> parse() {
         Pattern pattern = Pattern.compile("(\\\"\\w+\\\"):(\\\".*?\\\")");
         Matcher matcher = pattern.matcher(JSON);
         
@@ -23,7 +25,7 @@ public class ImdbMovieJsonParser {
         String value = null;
         
         Movie movie = null;
-        List<Movie> movies = new ArrayList<>(matcher.groupCount());
+        List<Content> contents = new ArrayList<>(matcher.groupCount());
 
         while (matcher.find()) {
             label = getTextoEntreAspasDuplas(matcher.group(1));
@@ -35,7 +37,7 @@ public class ImdbMovieJsonParser {
                     break;
 
                 case "rank":
-                    movie.rank(Integer.valueOf(value));
+                    movie.rank(value);
                     break;
 
                 case "title":
@@ -47,7 +49,7 @@ public class ImdbMovieJsonParser {
                     break;
 
                 case "year":
-                    movie.year(Integer.valueOf(value));
+                    movie.year(value);
                     break;
 
                 case "image":
@@ -59,12 +61,12 @@ public class ImdbMovieJsonParser {
                     break;
 
                 case "imDbRating":
-                    movie.imDbRating(Double.valueOf(value));
+                    movie.imDbRating(value);
                     break;
 
                 case "imDbRatingCount":
-                    movie.imDbRatingCount(Integer.valueOf(value));
-                    movies.add(movie);
+                    movie.imDbRatingCount(value);
+                    contents.add(movie);
                     break;
                 case "errorMessage":
                     if(value !=  null && !value.isEmpty()){
@@ -76,7 +78,7 @@ public class ImdbMovieJsonParser {
                 break;
             }
         }
-        return movies;
+        return contents;
     }
 
     public String getTextoEntreAspasDuplas(String string) {

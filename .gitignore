@@ -385,3 +385,5 @@ MigrationBackup/
 # End of https://www.toptal.com/developers/gitignore/api/vs,java
 .editorconfig
 .vscode/settings.json
+target/maven-status/maven-compiler-plugin/compile/default-compile/createdFiles.lst
+target/maven-status/maven-compiler-plugin/compile/default-compile/inputFiles.lst

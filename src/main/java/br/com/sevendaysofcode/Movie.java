@@ -1,27 +1,27 @@
 package br.com.sevendaysofcode;
 
-public class Movie {
+public class Movie implements Content{
     private String id;
-    private int rank;
+    private String rank;
     private String title;
     private String fullTitle;
-    private int year;
+    private String year;
     private String crew;
-    private String image;
-    private double imDbRating;
-    private int imDbRatingCount;
+    private String urlImage;
+    private String rating;
+    private String imDbRatingCount;
 
     @Override
-    public String toString() {
-        return "Movie [\n\tcrew=" + crew + ", \n\tfullTitle=" + fullTitle + ", \n\tid=" + id + ", \n\timDbRating=" + imDbRating
-                + ", \n\timDbRatingCount=" + imDbRatingCount + ", \n\timage=" + image + ", \trank=" + rank + ", \n\ttitle="
-                + title + ", \n\tyear=" + year + "\n]";
+    public String type() {
+        return "movie";
     }
-    public String getImage() {
-        return image;
+
+    @Override
+    public String urlImage() {
+        return urlImage;
     }
     public Movie image(String image) {
-        this.image = image;
+        this.urlImage = image;
         return this;
     }
     public String getId() {
@@ -31,14 +31,15 @@ public class Movie {
         this.id = id;
         return this;
     }
-    public int getRank() {
+    public String getRank() {
         return rank;
     }
-    public Movie rank(int rank) {
+    public Movie rank(String rank) {
         this.rank = rank;
         return this;
     }
-    public String getTitle() {
+    @Override
+    public String title() {
         return title;
     }
     public Movie title(String title) {
@@ -52,10 +53,12 @@ public class Movie {
         this.fullTitle = fullTitle;
         return this;
     }
-    public int getYear() {
+    
+    @Override
+    public String year() {
         return year;
     }
-    public Movie year(int year) {
+    public Movie year(String year) {
         this.year = year;
         return this;
     }
@@ -66,18 +69,24 @@ public class Movie {
         this.crew = crew;
         return this;
     }
-    public double getImDbRating() {
-        return imDbRating;
+
+    public String rating() {
+        return rating;
     }
-    public Movie imDbRating(double imDbRating) {
-        this.imDbRating = imDbRating;
+    public Movie imDbRating(String imDbRating) {
+        this.rating = imDbRating;
         return this;
     }
-    public int getImDbRatingCount() {
+    public String getImDbRatingCount() {
         return imDbRatingCount;
     }
-    public Movie imDbRatingCount(int imDbRatingCount) {
+    public Movie imDbRatingCount(String imDbRatingCount) {
         this.imDbRatingCount = imDbRatingCount;
         return this;
-    } 
+    }
+
+    @Override
+    public int compareTo(Content o) {
+        return this.year().compareToIgnoreCase(o.year());
+    }
 }
